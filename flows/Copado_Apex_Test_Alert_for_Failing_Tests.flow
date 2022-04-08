@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Send_email_if_failures_greater_than_0</name>
+        <label>Send email if failures greater than 0</label>
+        <locationX>658</locationX>
+        <locationY>337</locationY>
+        <actionName>copado__Apex_Test_Result__c.Copado_Apex_Test_Results_Failure_Email_Alert</actionName>
+        <actionType>emailAlert</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>SObjectRowId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+    </actionCalls>
+    <apiVersion>53.0</apiVersion>
+    <decisions>
+        <description>Checks to see if the number of failures on the latest apex test results record is greater than 0</description>
+        <name>Failures_0</name>
+        <label>Failures &gt; 0</label>
+        <locationX>370</locationX>
+        <locationY>341</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Tests_are_greater_than_0</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.copado__Failures__c</leftValueReference>
+                <operator>GreaterThan</operator>
+                <rightValue>
+                    <numberValue>0.0</numberValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Send_email_if_failures_greater_than_0</targetReference>
+            </connector>
+            <label>Tests are greater than 0</label>
+        </rules>
+    </decisions>
+    <description>This flow send an email to the credential owner and org admins if their are failing apex tests.</description>
+    <interviewLabel>Copado Apex Test Alert for Failing Tests {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Copado Apex Test Alert for Failing Tests</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>FREE_FORM_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Update_latest_number_of_failures_on_credential_record</name>
+        <label>Update latest number of failures on credential record</label>
+        <locationX>189</locationX>
+        <locationY>339</locationY>
+        <connector>
+            <targetReference>Failures_0</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.copado__Org__r.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Latest_Number_of_Test_Failures__c</field>
+            <value>
+                <elementReference>$Record.copado__Failures__c</elementReference>
+            </value>
+        </inputAssignments>
+        <object>copado__Org__c</object>
+    </recordUpdates>
+    <start>
+        <locationX>63</locationX>
+        <locationY>31</locationY>
+        <connector>
+            <targetReference>Update_latest_number_of_failures_on_credential_record</targetReference>
+        </connector>
+        <object>copado__Apex_Test_Result__c</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

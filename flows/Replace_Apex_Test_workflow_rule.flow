@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Send_tests_if_failures_greater_than_0</name>
+        <label>Send tests if failures greater than 0</label>
+        <locationX>547</locationX>
+        <locationY>372</locationY>
+        <actionName>copado__Apex_Test_Result__c.Apex_Test_Results</actionName>
+        <actionType>emailAlert</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>SObjectRowId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+    </actionCalls>
+    <apiVersion>52.0</apiVersion>
+    <decisions>
+        <name>Check_if_failures_are_greater_than_0</name>
+        <label>Check if failures are greater than 0</label>
+        <locationX>363</locationX>
+        <locationY>374</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Greater_than_0</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.copado__Failures__c</leftValueReference>
+                <operator>GreaterThan</operator>
+                <rightValue>
+                    <numberValue>0.0</numberValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Send_tests_if_failures_greater_than_0</targetReference>
+            </connector>
+            <label>Greater than 0</label>
+        </rules>
+    </decisions>
+    <interviewLabel>Replace Apex Test workflow rule {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Replace Apex Test workflow rule</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>FREE_FORM_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Update_Latest_Failure_Field</name>
+        <label>Update Latest Failure Field on Credential Record</label>
+        <locationX>175</locationX>
+        <locationY>371</locationY>
+        <connector>
+            <targetReference>Check_if_failures_are_greater_than_0</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.copado__Org__r.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Latest_Number_of_Test_Failures__c</field>
+            <value>
+                <elementReference>$Record.copado__Failures__c</elementReference>
+            </value>
+        </inputAssignments>
+        <object>copado__Org__c</object>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>50</locationY>
+        <connector>
+            <targetReference>Update_Latest_Failure_Field</targetReference>
+        </connector>
+        <object>copado__Apex_Test_Result__c</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>
